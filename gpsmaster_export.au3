@@ -51,19 +51,19 @@ For $year = 0 To 10
       ;   use those instead.
       ; this might fail if items 10 and 11 aren't actually 02 and 01; that might happen
       ;   if there are entries for all months except for 02 (so 10 would then be 01).
-		   Switch $month
-		   Case 10
-			  $curmonth = "02"
-		   Case 11
-			  $curmonth = "01"
-		   Case Else
-			  $curmonth = "#"&$month
-		   EndSwitch
+       Switch $month
+       Case 10
+         $curmonth = "02"
+       Case 11
+         $curmonth = "01"
+       Case Else
+         $curmonth = "#"&$month
+       EndSwitch
 
-	  ControlTreeView ( "[CLASS:WATCH_09059]", "", "[CLASS:SysTreeView32; INSTANCE:1]", "Expand", "#"&$year&"|"&$curmonth )
-	  $items = ControlTreeView ( "[CLASS:WATCH_09059]", "", "[CLASS:SysTreeView32; INSTANCE:1]", "GetItemCount", "#"&$year&"|"&$curmonth )
-	    For $i = 0 To ($items - 1)
-		   ControlTreeView ( "[CLASS:WATCH_09059]", "", "[CLASS:SysTreeView32; INSTANCE:1]", "Select", "#"&$year&"|"&$curmonth&"|#"&$i )
+    ControlTreeView ( "[CLASS:WATCH_09059]", "", "[CLASS:SysTreeView32; INSTANCE:1]", "Expand", "#"&$year&"|"&$curmonth )
+    $items = ControlTreeView ( "[CLASS:WATCH_09059]", "", "[CLASS:SysTreeView32; INSTANCE:1]", "GetItemCount", "#"&$year&"|"&$curmonth )
+      For $i = 0 To ($items - 1)
+       ControlTreeView ( "[CLASS:WATCH_09059]", "", "[CLASS:SysTreeView32; INSTANCE:1]", "Select", "#"&$year&"|"&$curmonth&"|#"&$i )
 
          ; this is how to skip all entries until a given year / month (n.b. counting from 0).
          ;MsgBox($MB_SYSTEMMODAL, "Debug", "year: "&$year&" month: "&$month&" i: "&$i)
@@ -78,9 +78,9 @@ For $year = 0 To 10
            ExitLoop 3 ; exit all loops traversing the tree
          EndIf
 
-		     SaveAsGpx()
-	    Next
-   Next
+         SaveAsGpx()
+      Next
+     Next
   EndIf
 Next
 
