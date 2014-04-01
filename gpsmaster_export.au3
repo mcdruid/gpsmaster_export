@@ -13,7 +13,7 @@
 ; stop at a given item (this item itself will not be exported)
 Local $stopAt
 ; to stop at this item, uncomment this variable and set it to correct value
-; $stopAt = "2014/02/22_11:47:41"
+;$stopAt = "2014/02/22_11:47:41"
 
 ; Run GPS Master
 Run("C:\Program Files\GPS Master 2.0.14\GPS Master.exe")
@@ -69,7 +69,7 @@ For $year = 0 To 10
          ;MsgBox($MB_SYSTEMMODAL, "Debug", "year: "&$year&" month: "&$month&" i: "&$i)
          ;If ((($year > 0) And ($month > 9)) Or ($year > 1)) Then
            ;MsgBox($MB_SYSTEMMODAL, "Debug", "year: "&$year&" month: "&$month&" curmonth: "&$curmonth&" i: "&$i)
-         ; remember to add the EndIf after SaveAsGpx() if you use this option. 
+         ; remember to add the EndIf after SaveAsGpx() if you use this option.
 
          ; alternatively you could stop here at a given year / month / item.
          $curItem = ControlTreeView ( "[CLASS:WATCH_09059]", "", "[CLASS:SysTreeView32; INSTANCE:1]", "GetText", "#"&$year&"|"&$curmonth&"|#"&$i )
