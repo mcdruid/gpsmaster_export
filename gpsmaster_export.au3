@@ -10,13 +10,18 @@
 ;   Opens GPS Master, traverses the tree of dates, exports each entry as a gpx file.
 ;
 
+Local $startAt = InputBox("Start at", "e.g. 2014/02/22_11:47:41 or just 2014/02/22 or leave blank.", '', '', -1, 150)
 ; stop at a given item (this item itself will not be exported)
-Local $stopAt
-; to stop at this item, uncomment this variable and set it to correct value
-;$stopAt = "2014/02/22_11:47:41"
+Local $stopText = "e.g. 2014/02/22_11:47:41 or just 2014/02/22 or leave blank. The first item that matches this will not be exported."
+Local $stopAt = InputBox("Stop at", $stopText, '', '', -1, 150)
+;$stopAt = "2014/02/22_11:47:41
+
+Local $exportType = InputBox("Export type", "1-6 (tkl = 1, pth = 2, kml = 3, gpx = 4, nmea = 5, csv = 6)", 4, '', -1, 150)
 
 ; Run GPS Master
-Run("C:\Program Files\GPS Master 2.0.14\GPS Master.exe")
+$gpsExe = FileOpenDialog("Select the GPS Master.exe", @ProgramFilesDir, "(*.exe)")
+Run($gpsExe)
+;Run("C:\Program Files\GPS Master 2.0.14\GPS Master.exe")
 
 ; Wait for the app to become active. The classname is monitored instead of the window title
 WinWaitActive("[CLASS:WATCH_09059]")
@@ -27,7 +32,7 @@ Local $years
 Local $months
 Local $curmonth
 Local $items
-Local $curItem
+Local $curItem, $started
 
 ; Find the first leaf in the SysTree
 ; https://www.autoitscript.com/autoit3/docs/functions/ControlTreeView.htm
@@ -38,9 +43,14 @@ Local $curItem
 ;  MsgBox($MB_SYSTEMMODAL, "Debug", "firstYear: "&$firstYear )
 ;EndIf
 
-; clunky way to do this, but assume nobody has been using GPS watch for 10 years :)
-For $year = 0 To 10
-  If ControlTreeView ( "[CLASS:WATCH_09059]", "", "[CLASS:SysTreeView32; INSTANCE:1]", "Exists", "#"&$year ) Then
+If $startAt = '' Then
+   $started = True
+Else
+   $started = False
+EndIf
+
+$year = 0
+While ControlTreeView ( "[CLASS:WATCH_09059]", "", "[CLASS:SysTreeView32; INSTANCE:1]", "Exists", "#"&$year )
    ControlTreeView ( "[CLASS:WATCH_09059]", "", "[CLASS:SysTreeView32; INSTANCE:1]", "Expand", "#"&$year )
    $months = ControlTreeView ( "[CLASS:WATCH_09059]", "", "[CLASS:SysTreeView32; INSTANCE:1]", "GetItemCount", "#"&$year )
    For $month = 0 To ($months - 1)
@@ -73,16 +83,24 @@ For $year = 0 To 10
 
          ; alternatively you could stop here at a given year / month / item.
          $curItem = ControlTreeView ( "[CLASS:WATCH_09059]", "", "[CLASS:SysTreeView32; INSTANCE:1]", "GetText", "#"&$year&"|"&$curmonth&"|#"&$i )
-         If $curItem == $stopAt Then
-           MsgBox($MB_SYSTEMMODAL, "Debug", "Stopping at "&$curItem )
+
+		 If StringInStr ( $curItem, $stopAt ) <> 0 Then
+           MsgBox($MB_SYSTEMMODAL, "Stop", "Stopping at "&$curItem )
            ExitLoop 3 ; exit all loops traversing the tree
          EndIf
+		 If $started = False Then
+			If StringInStr ( $curItem, $startAt ) <> 0 Then
+			   $started = True
+		    EndIf
+		 EndIf
 
-         SaveAsGpx()
+		 If $started = True Then
+		   SaveAsGpx()
+		 EndIf
       Next
-     Next
-  EndIf
-Next
+   Next
+   $year = $year + 1
+WEnd
 
 ; Now wait for GPS Master to close before continuing
 WinWaitClose("[CLASS:WATCH_09059]")
@@ -105,7 +123,7 @@ Func SaveAsGpx()
    WinWaitActive("[CLASS:#32770]") ; this is the "Save As" dialog
    WinActivate("[CLASS:#32770]") ; ensure focus
    Send("{TAB}")
-   Send("{DOWN 4}") ; should select "GPS Exchange file (*.gpx)"
+   Send("{DOWN "&$exportType&"}") ; 4 should select "GPS Exchange file (*.gpx)"
    Send("{ENTER}")
    Sleep(250)
    Send("!s") ; Save
